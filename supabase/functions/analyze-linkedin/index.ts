@@ -167,10 +167,28 @@ Be thorough, specific, and honest in your assessment. Look for concrete evidence
     );
 
   } catch (error) {
+    console.error('=== FULL ERROR DETAILS ===');
     console.error('Error in analyze-linkedin:', error);
+    console.error('Error type:', typeof error);
+    console.error('Error instanceof Error:', error instanceof Error);
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    console.error('Error stringified:', JSON.stringify(error, null, 2));
+    console.error('=== END ERROR DETAILS ===');
+    
     const errorMessage = error instanceof Error ? error.message : 'Failed to analyze profile';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: errorMessage,
+        details: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        } : String(error)
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

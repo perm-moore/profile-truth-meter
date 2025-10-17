@@ -76,11 +76,18 @@ export const LinkedInAnalyzer = () => {
       });
 
       if (analysisError) {
+        console.error('Supabase function error:', analysisError);
         throw analysisError;
       }
 
-      if (analysisData.error) {
+      if (analysisData?.error) {
+        console.error('Analysis returned error:', analysisData.error);
         throw new Error(analysisData.error);
+      }
+
+      if (!analysisData) {
+        console.error('No data returned from analysis');
+        throw new Error('No data returned from analysis');
       }
 
       setResult(analysisData);
@@ -91,8 +98,16 @@ export const LinkedInAnalyzer = () => {
       });
 
     } catch (err) {
-      console.error('Analysis error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to analyze profile';
+      console.error('Full analysis error:', err);
+      console.error('Error details:', JSON.stringify(err, null, 2));
+      
+      let errorMessage = 'Failed to analyze profile';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        console.error('Error message:', err.message);
+        console.error('Error stack:', err.stack);
+      }
+      
       setError(errorMessage);
       
       toast({

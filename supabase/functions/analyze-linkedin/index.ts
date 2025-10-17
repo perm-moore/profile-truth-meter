@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import FirecrawlApp from 'https://esm.sh/@mendable/firecrawl-js@1.7.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,14 +13,32 @@ serve(async (req) => {
   }
 
   try {
-    const { profileContent, profileUrl } = await req.json();
+    const { profileUrl } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const FIRECRAWL_API_KEY = Deno.env.get('FIRECRAWL_API_KEY');
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    console.log('Analyzing LinkedIn profile:', profileUrl);
+    if (!FIRECRAWL_API_KEY) {
+      throw new Error('FIRECRAWL_API_KEY not configured');
+    }
+
+    console.log('Scraping LinkedIn profile:', profileUrl);
+
+    // Use Firecrawl to scrape the LinkedIn profile
+    const firecrawl = new FirecrawlApp({ apiKey: FIRECRAWL_API_KEY });
+    const scrapeResult = await firecrawl.scrapeUrl(profileUrl, {
+      formats: ['markdown'],
+    });
+
+    if (!scrapeResult.success || !scrapeResult.markdown) {
+      throw new Error('Failed to scrape LinkedIn profile');
+    }
+
+    const profileContent = scrapeResult.markdown;
+    console.log('Successfully scraped profile, analyzing with AI...');
 
     const systemPrompt = `You are an expert LinkedIn profile analyzer. Analyze the provided LinkedIn profile content and score it on legitimacy and credibility.
 

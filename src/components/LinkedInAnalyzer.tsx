@@ -1,11 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield, AlertCircle, CheckCircle2, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ScoreCard } from "./ScoreCard";
-import { ExperienceBreakdown } from "./ExperienceBreakdown";
-import { CategoryBreakdown } from "./CategoryBreakdown";
 
 export interface Experience {
   id: number;
@@ -34,13 +32,12 @@ export interface AnalysisResult {
 export const LinkedInAnalyzer = () => {
   const [url, setUrl] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAnalyze = async () => {
     setError("");
-    setResult(null);
     
     if (!url.trim()) {
       setError("Please enter a LinkedIn URL");
@@ -154,13 +151,15 @@ export const LinkedInAnalyzer = () => {
       ]
     };
 
-    setResult(demoResult);
     setIsAnalyzing(false);
     
     toast({
       title: "Analysis complete!",
       description: `Overall score: ${demoResult.overallScore}/100`,
     });
+
+    // Navigate to results page
+    navigate("/results", { state: { result: demoResult } });
   };
 
   return (

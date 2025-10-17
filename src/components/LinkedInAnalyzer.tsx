@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield, AlertCircle, CheckCircle2, TrendingUp } from "lucide-react";
@@ -36,13 +37,12 @@ export const LinkedInAnalyzer = () => {
   const [url, setUrl] = useState("");
   const [pastedContent, setPastedContent] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAnalyze = async () => {
     setError("");
-    setResult(null);
     
     if (!url.trim()) {
       setError("Please enter a LinkedIn URL");
@@ -108,12 +108,13 @@ export const LinkedInAnalyzer = () => {
         throw new Error('No data returned from analysis');
       }
 
-      setResult(analysisData);
-      
       toast({
         title: "Analysis complete!",
         description: `Overall score: ${analysisData.overallScore}/100`,
       });
+      
+      // Navigate to results page with the analysis data
+      navigate("/results", { state: { result: analysisData } });
 
     } catch (err) {
       console.error('Full analysis error:', err);
@@ -229,14 +230,7 @@ export const LinkedInAnalyzer = () => {
         </div>
       </div>
 
-      {/* Results Section */}
-      {result && (
-        <div className="max-w-6xl mx-auto px-4 py-12 animate-slide-up">
-          <ScoreCard result={result} />
-          <ExperienceBreakdown experiences={result.experiences} />
-          <CategoryBreakdown categories={result.categories} />
-        </div>
-      )}
+
     </div>
   );
 };

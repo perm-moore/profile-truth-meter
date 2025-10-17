@@ -44,7 +44,7 @@ serve(async (req) => {
           timeout: 45000,
         });
 
-        console.log('Scrape result:', JSON.stringify(scrapeResult, null, 2));
+        console.log('Scrape result success:', scrapeResult.success);
 
         if (scrapeResult.success && (scrapeResult.markdown || scrapeResult.html)) {
           finalContent = scrapeResult.markdown || scrapeResult.html;
@@ -53,34 +53,21 @@ serve(async (req) => {
           console.log('Scrape succeeded but no content returned');
         }
       } catch (scrapeError: any) {
-        console.error('=== FIRECRAWL ERROR ===');
-        console.error('Firecrawl error:', scrapeError);
-        console.error('Error message:', scrapeError?.message);
-        console.error('Status code:', scrapeError?.statusCode);
-        console.error('=== END FIRECRAWL ERROR ===');
-        
-        // If Firecrawl fails due to LinkedIn blocking (403), return helpful error
-        if (scrapeError?.statusCode === 403 || (scrapeError instanceof Error && scrapeError.message.includes('403'))) {
-          return new Response(
-            JSON.stringify({ 
-              error: 'LinkedIn is blocking automated access. Please copy the profile text (visit profile → Ctrl+A/Cmd+A → Ctrl+C/Cmd+C) and paste it in the text area above the Analyze button.'
-            }),
-            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        
-        // For other errors, return generic message with hint about manual paste
-        return new Response(
-          JSON.stringify({ 
-            error: `Scraping failed: ${scrapeError?.message || 'Unknown error'}. Please paste the profile content manually.`
-          }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        console.error('Firecrawl scraping failed:', scrapeError?.message);
+        // Don't throw - just log and continue to ask for manual paste
+        finalContent = null;
       }
     }
 
     if (!finalContent) {
-      throw new Error('No profile content provided. Please paste the LinkedIn profile content.');
+      // Return success response with clear instructions
+      return new Response(
+        JSON.stringify({ 
+          needsManualPaste: true,
+          error: '⚠️ LinkedIn blocked automatic scraping. Please:\n\n1. Visit the LinkedIn profile in your browser\n2. Select all text (Ctrl+A or Cmd+A)\n3. Copy it (Ctrl+C or Cmd+C)\n4. Paste it in the text area above\n5. Click Analyze again'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Analyzing profile with AI...');

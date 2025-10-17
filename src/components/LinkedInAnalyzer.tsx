@@ -85,6 +85,19 @@ export const LinkedInAnalyzer = () => {
         throw analysisError;
       }
 
+      // Check if we need manual paste
+      if (analysisData?.needsManualPaste) {
+        setError(analysisData.error);
+        toast({
+          title: "Manual input required",
+          description: "Please paste the profile content in the text area",
+          variant: "destructive",
+          duration: 10000,
+        });
+        setIsAnalyzing(false);
+        return;
+      }
+
       if (analysisData?.error) {
         console.error('Analysis returned error:', analysisData.error);
         throw new Error(analysisData.error);

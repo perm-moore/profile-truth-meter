@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { profileUrl } = await req.json();
+    const { profileUrl, profileContent } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const FIRECRAWL_API_KEY = Deno.env.get('FIRECRAWL_API_KEY');
 
@@ -21,24 +21,52 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    if (!FIRECRAWL_API_KEY) {
-      throw new Error('FIRECRAWL_API_KEY not configured');
+    // Ensure URL has proper protocol
+    let fullUrl = profileUrl;
+    if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+      fullUrl = 'https://' + fullUrl;
     }
 
-    console.log('Scraping LinkedIn profile:', profileUrl);
+    console.log('Processing LinkedIn profile:', fullUrl);
 
-    // Use Firecrawl to scrape the LinkedIn profile
-    const firecrawl = new FirecrawlApp({ apiKey: FIRECRAWL_API_KEY });
-    const scrapeResult = await firecrawl.scrapeUrl(profileUrl, {
-      formats: ['markdown'],
-    });
+    // Use pasted content if provided, otherwise try Firecrawl
+    let finalContent = profileContent;
+    
+    if (!finalContent && FIRECRAWL_API_KEY) {
+      const firecrawl = new FirecrawlApp({ apiKey: FIRECRAWL_API_KEY });
+      
+      try {
+        console.log('Attempting to scrape with Firecrawl...');
+        const scrapeResult = await firecrawl.scrapeUrl(fullUrl, {
+          formats: ['markdown'],
+          timeout: 30000,
+        });
 
-    if (!scrapeResult.success || !scrapeResult.markdown) {
-      throw new Error('Failed to scrape LinkedIn profile');
+        if (scrapeResult.success && scrapeResult.markdown) {
+          finalContent = scrapeResult.markdown;
+          console.log('Successfully scraped profile with Firecrawl');
+        }
+      } catch (scrapeError) {
+        // If Firecrawl fails due to LinkedIn blocking (403), log but continue with pasted content requirement
+        if (scrapeError instanceof Error && scrapeError.message.includes('403')) {
+          console.log('LinkedIn blocked Firecrawl scraping (403)');
+          return new Response(
+            JSON.stringify({ 
+              error: 'LinkedIn blocked the scraper. Please visit the profile, copy all text (Ctrl+A/Cmd+A), and paste it in the text area.'
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        console.error('Firecrawl error:', scrapeError);
+        throw scrapeError;
+      }
     }
 
-    const profileContent = scrapeResult.markdown;
-    console.log('Successfully scraped profile, analyzing with AI...');
+    if (!finalContent) {
+      throw new Error('No profile content provided. Please paste the LinkedIn profile content.');
+    }
+
+    console.log('Analyzing profile with AI...');
 
     const systemPrompt = `You are an expert LinkedIn profile analyzer. Analyze the provided LinkedIn profile content and score it on legitimacy and credibility.
 
@@ -96,7 +124,7 @@ Be thorough, specific, and honest in your assessment. Look for concrete evidence
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze this LinkedIn profile:\n\n${profileContent}` }
+          { role: 'user', content: `Analyze this LinkedIn profile:\n\n${finalContent}` }
         ],
         temperature: 0.7,
       }),

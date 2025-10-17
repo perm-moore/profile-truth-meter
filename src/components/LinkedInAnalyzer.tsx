@@ -34,6 +34,7 @@ export interface AnalysisResult {
 
 export const LinkedInAnalyzer = () => {
   const [url, setUrl] = useState("");
+  const [pastedContent, setPastedContent] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
@@ -53,18 +54,24 @@ export const LinkedInAnalyzer = () => {
       return;
     }
 
+    if (!pastedContent.trim()) {
+      setError("Please paste the LinkedIn profile content below");
+      return;
+    }
+
     setIsAnalyzing(true);
     
     try {
       toast({
-        title: "Scraping profile...",
-        description: "Fetching LinkedIn content with browser automation",
+        title: "Analyzing profile...",
+        description: "AI is evaluating credibility",
       });
 
-      // Call the edge function to scrape and analyze
+      // Call the edge function to analyze with pasted content
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-linkedin', {
         body: { 
-          profileUrl: url 
+          profileUrl: url,
+          profileContent: pastedContent
         }
       });
 
@@ -118,15 +125,27 @@ export const LinkedInAnalyzer = () => {
           </p>
 
           <div className="max-w-2xl mx-auto">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3">
               <Input
                 type="url"
                 placeholder="Enter LinkedIn profile URL (e.g., linkedin.com/in/username)"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleAnalyze()}
-                className="flex-1 h-12 bg-card/90 backdrop-blur-sm border-primary-foreground/20 text-foreground placeholder:text-muted-foreground"
+                className="h-12 bg-card/90 backdrop-blur-sm border-primary-foreground/20 text-foreground placeholder:text-muted-foreground"
               />
+              
+              <div className="space-y-2">
+                <p className="text-sm text-primary-foreground/80 font-medium">
+                  LinkedIn blocks automated scrapers. Please visit the profile, select all text (Ctrl+A or Cmd+A), copy it, and paste below:
+                </p>
+                <textarea
+                  placeholder="Paste the full LinkedIn profile content here..."
+                  value={pastedContent}
+                  onChange={(e) => setPastedContent(e.target.value)}
+                  className="w-full min-h-[200px] px-4 py-3 rounded-md bg-card/90 backdrop-blur-sm border border-primary-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                />
+              </div>
+
               <Button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}

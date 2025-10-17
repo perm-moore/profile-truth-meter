@@ -8,10 +8,10 @@ import { CategoryBreakdown } from "./CategoryBreakdown";
 export interface AnalysisResult {
   overallScore: number;
   categories: {
-    companies: { score: number; explanation: string };
-    experience: { score: number; explanation: string };
-    artifacts: { score: number; explanation: string };
-    network: { score: number; explanation: string };
+    experienceDepth: { score: number; explanation: string };
+    tenureConsistency: { score: number; explanation: string };
+    networkCredibility: { score: number; explanation: string };
+    skillAlignment: { score: number; explanation: string };
   };
   verdict: "legitimate" | "questionable" | "suspicious";
   summary: string;
@@ -24,29 +24,29 @@ const analyzeLinkedInProfile = (url: string): AnalysisResult => {
   const baseScore = 50 + (hash % 40);
   
   const categories = {
-    companies: {
+    experienceDepth: {
       score: Math.min(100, baseScore + (hash % 20)),
-      explanation: "Work history shows consistent employment at verified companies with industry-standard progression.",
+      explanation: "Job descriptions show detailed, specific responsibilities and achievements. Projects and artifacts demonstrate hands-on expertise in claimed domains.",
     },
-    experience: {
+    tenureConsistency: {
       score: Math.min(100, baseScore + (hash % 15)),
-      explanation: "Years of experience align with educational background. Skills match job descriptions realistically.",
+      explanation: "Career timeline shows realistic progression with appropriate time spent at each level. Industry experience aligns with stated expertise and seniority.",
     },
-    artifacts: {
-      score: Math.min(100, baseScore - (hash % 10)),
-      explanation: "Projects, certifications, and publications are verifiable and relevant to claimed expertise.",
-    },
-    network: {
+    networkCredibility: {
       score: Math.min(100, baseScore + (hash % 25)),
-      explanation: "Network size and connections are proportional to career stage. Engagement patterns appear organic.",
+      explanation: "Connection count is proportional to career stage and role seniority. Network includes relevant industry professionals and colleagues from stated positions.",
+    },
+    skillAlignment: {
+      score: Math.min(100, baseScore - (hash % 10)),
+      explanation: "Listed skills directly match job requirements and responsibilities. Endorsements and recommendations support claimed technical and professional competencies.",
     },
   };
 
   const overallScore = Math.round(
-    (categories.companies.score +
-      categories.experience.score +
-      categories.artifacts.score +
-      categories.network.score) / 4
+    (categories.experienceDepth.score +
+      categories.tenureConsistency.score +
+      categories.networkCredibility.score +
+      categories.skillAlignment.score) / 4
   );
 
   let verdict: "legitimate" | "questionable" | "suspicious";
@@ -54,13 +54,13 @@ const analyzeLinkedInProfile = (url: string): AnalysisResult => {
 
   if (overallScore >= 75) {
     verdict = "legitimate";
-    summary = "This profile demonstrates strong authenticity markers across all categories. Employment history, skills, and network activity align with genuine professional development.";
+    summary = "This person appears genuinely skilled with verifiable expertise. Their profile shows consistent depth across experience, tenure, network, and skill alignment—suggesting they truly know their field.";
   } else if (overallScore >= 50) {
     verdict = "questionable";
-    summary = "This profile shows some inconsistencies that warrant further verification. While not definitively fraudulent, certain aspects require additional scrutiny.";
+    summary = "Proceed with caution. While not definitively misleading, this profile shows inconsistencies between claimed expertise and actual evidence. Additional verification recommended.";
   } else {
     verdict = "suspicious";
-    summary = "Multiple red flags detected. This profile exhibits patterns commonly associated with misleading or fabricated information. Recommend thorough verification before proceeding.";
+    summary = "High likelihood of inflated or fabricated credentials. Profile exhibits multiple red flags suggesting limited real-world expertise despite bold claims. Verify thoroughly before engaging.";
   }
 
   return { overallScore, categories, verdict, summary };
@@ -107,11 +107,11 @@ export const LinkedInAnalyzer = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-primary-foreground mb-4">
-            LinkedIn Profile<br />Legitimacy Detector
+            Are They Really<br />That Skilled?
           </h1>
           
           <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Verify profile authenticity using advanced analysis of work history, credentials, and network patterns
+            Met someone at a networking event? Verify if they're genuinely skilled or just winging it with AI-powered analysis
           </p>
 
           <div className="max-w-2xl mx-auto">
@@ -156,19 +156,19 @@ export const LinkedInAnalyzer = () => {
           <div className="flex flex-wrap justify-center gap-8 mt-12 text-primary-foreground/80">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5" />
-              <span className="text-sm">Company Verification</span>
+              <span className="text-sm">Experience Depth</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5" />
-              <span className="text-sm">Experience Analysis</span>
+              <span className="text-sm">Tenure Analysis</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5" />
-              <span className="text-sm">Network Patterns</span>
+              <span className="text-sm">Network Credibility</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5" />
-              <span className="text-sm">Artifact Validation</span>
+              <span className="text-sm">Skill Alignment</span>
             </div>
           </div>
         </div>

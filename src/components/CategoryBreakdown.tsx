@@ -9,33 +9,33 @@ interface Category {
 
 interface CategoryBreakdownProps {
   categories: {
-    companies: Category;
-    experience: Category;
-    artifacts: Category;
-    network: Category;
+    experienceDepth: Category;
+    tenureConsistency: Category;
+    networkCredibility: Category;
+    skillAlignment: Category;
   };
 }
 
 const categoryConfig = {
-  companies: {
-    icon: Building2,
-    title: "Company Verification",
-    description: "Employer legitimacy and career progression",
-  },
-  experience: {
+  experienceDepth: {
     icon: Briefcase,
-    title: "Experience Analysis",
-    description: "Skills and timeline consistency",
+    title: "Experience Depth",
+    description: "Quality and detail of job descriptions and artifacts",
   },
-  artifacts: {
-    icon: Award,
-    title: "Artifacts & Credentials",
-    description: "Certifications, projects, and achievements",
+  tenureConsistency: {
+    icon: Building2,
+    title: "Tenure & Industry Years",
+    description: "Career timeline and realistic progression",
   },
-  network: {
+  networkCredibility: {
     icon: Users,
-    title: "Network Patterns",
-    description: "Connection quality and engagement",
+    title: "Network Credibility",
+    description: "Connection count relative to career stage",
+  },
+  skillAlignment: {
+    icon: Award,
+    title: "Skill-Job Alignment",
+    description: "How well skills match actual job requirements",
   },
 };
 

@@ -58,6 +58,7 @@ export const LinkedInAnalyzer = () => {
     const isAdamProfile = url.includes('adamsmohib');
     const isHoshangProfile = url.includes('hoshangv');
     const isAshleyProfile = url.includes('ashweaver');
+    const isChristopherProfile = url.includes('christopherwheels');
 
     let demoResult: AnalysisResult;
 
@@ -359,10 +360,128 @@ export const LinkedInAnalyzer = () => {
           }
         ]
       };
+    } else if (isChristopherProfile) {
+      // Static demo data for Christopher Wheeler (questionable - inflated claims)
+      demoResult = {
+        overallScore: 58,
+        verdict: "questionable",
+        summary: "Profile shows mixed signals with legitimate big tech experience but concerning inconsistencies. Claims of 'decades' of SaaS experience don't match 8-year timeline. Vague job titles at major companies raise verification concerns. Recent pivot to lifestyle club and consulting with bold marketing claims lacks substantiation.",
+        categories: {
+          companyVerification: {
+            score: 65,
+            explanation: "Meta, LinkedIn, and Splunk are legitimate companies, but job titles are suspiciously vague ('Engineering' without specific role). ONYX Lifestyle Club is only 4 months old. Imaginate platform lacks verifiable online presence or customer testimonials."
+          },
+          artifactsCredentials: {
+            score: 55,
+            explanation: "Lists 'Masters' from UC Berkeley with no degree specifics, dates, or field of study - highly unusual. BS in Computer Science from Hawaii Pacific University (2010-2013) is verifiable. Lack of details on graduate education raises concerns."
+          },
+          experienceAnalysis: {
+            score: 52,
+            explanation: "Claims 'decades' of SaaS experience but earliest role is 2017 (8 years). Generic job descriptions at big tech companies lack specific achievements or team sizes. Rapid pivot from engineering roles to luxury lifestyle club owner seems disconnected. Bold claims about building 'enterprise-ready SaaS in weeks' are unsubstantiated."
+          },
+          networkPatterns: {
+            score: 60,
+            explanation: "500+ connections is moderate. Recent posts focus heavily on ONYX Lifestyle Club McLaren events. Following Tony Robbins and business coaches suggests interest in entrepreneurship/self-promotion. Limited engagement from verified big tech colleagues on recent posts."
+          }
+        },
+        experiences: [
+          {
+            id: 1,
+            title: "Owner",
+            company: "ONYX Lifestyle Club",
+            duration: "Jul 2025 - Present (4 mos)",
+            score: 48,
+            analysis: "Very new venture (4 months old) targeting 'supercar & yacht owners.' Recent posts show McLaren partnership event. Difficult to verify membership base or actual operations. Rapid shift from engineering to luxury lifestyle club raises questions about sustainability.",
+            redFlags: [
+              "Only 4 months old - too early to verify legitimacy",
+              "Dramatic pivot from tech engineering to luxury club",
+              "No verifiable membership numbers or testimonials",
+              "Business model unclear"
+            ],
+            strengths: [
+              "Partnership with McLaren San Francisco appears real",
+              "Professional event marketing materials"
+            ]
+          },
+          {
+            id: 2,
+            title: "Owner",
+            company: "Imaginate",
+            duration: "2024 - Present (1 yr 10 mos)",
+            score: 50,
+            analysis: "AI ads management platform with minimal online presence. No verifiable customer testimonials, case studies, or product demos available. Claims to generate and test ad creative permutations - competitive space with established players.",
+            redFlags: [
+              "No verifiable online presence or website",
+              "No customer testimonials or case studies",
+              "Listed location in Dubai raises questions",
+              "Overlaps with other ventures and previous employment"
+            ],
+            strengths: [
+              "Concept aligns with ad tech experience"
+            ]
+          },
+          {
+            id: 3,
+            title: "AI Engineering",
+            company: "LinkedIn",
+            duration: "May 2021 - Sep 2024 (3 yrs 5 mos)",
+            score: 62,
+            analysis: "Generic 'AI Engineering' title is unusual for LinkedIn - typically specific like 'Staff Software Engineer' or 'Senior ML Engineer.' Description mentions ad attribution and insight tag work which are legitimate LinkedIn products. However, vague title and lack of specific team/projects raises concerns.",
+            redFlags: [
+              "Unusually vague job title for LinkedIn",
+              "No specific team, manager, or project mentions",
+              "Started Imaginate in 2024 while still employed",
+              "Difficult to verify through LinkedIn's employee database"
+            ],
+            strengths: [
+              "3+ year tenure is substantial",
+              "Work description aligns with LinkedIn products",
+              "Location in Honolulu matches LinkedIn's remote policies"
+            ]
+          },
+          {
+            id: 4,
+            title: "Engineering",
+            company: "Splunk",
+            duration: "Jun 2018 - May 2021 (3 yrs)",
+            score: 58,
+            analysis: "Another vague 'Engineering' title without specificity. Description of stream processing and advertising data is plausible for Splunk's product suite. 3-year tenure is reasonable but lack of specifics about team or level raises verification concerns.",
+            redFlags: [
+              "No specific title, level, or team",
+              "Generic description without measurable achievements",
+              "Cannot verify through Splunk employee networks"
+            ],
+            strengths: [
+              "3-year tenure shows stability",
+              "Work description aligns with Splunk's capabilities",
+              "San Francisco Bay Area location makes sense"
+            ]
+          },
+          {
+            id: 5,
+            title: "Engineering",
+            company: "Meta",
+            duration: "2017 - 2018 (1 yr)",
+            score: 55,
+            analysis: "One-year tenure at Meta with only 'Engineering' as title. Mentions ad placement algorithms which is legitimate Meta work, but extreme lack of detail is concerning. No specific months given, just years.",
+            redFlags: [
+              "Shortest tenure - only 1 year",
+              "Most vague description of all roles",
+              "No specific team (Ads, Feed, Growth?)",
+              "No dates down to month precision",
+              "Very difficult to verify"
+            ],
+            strengths: [
+              "Ad placement is legitimate Meta work area",
+              "Timeline predates other roles logically"
+            ]
+          }
+        ]
+      };
     } else {
       // Default error for other URLs
       setIsAnalyzing(false);
-      setError("Please use one of the demo profiles: adamsmohib (good), ashweaver (good), or hoshangv (questionable)");
+      setError("Please use one of the demo profiles: adamsmohib, ashweaver, hoshangv, or christopherwheels");
       return;
     }
 

@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import { ScoreCard } from "@/components/ScoreCard";
 import { ExperienceBreakdown } from "@/components/ExperienceBreakdown";
 import { CategoryBreakdown } from "@/components/CategoryBreakdown";
@@ -47,6 +47,18 @@ const Results = () => {
 
       {/* Results Content */}
       <div className="max-w-6xl mx-auto px-4 py-12">
+        {/* View Profile Button */}
+        <div className="mb-8 flex justify-center">
+          <Button
+            onClick={() => navigate("/profile")}
+            size="lg"
+            className="bg-[#0077b5] hover:bg-[#006097] text-white gap-2"
+          >
+            <Eye className="h-5 w-5" />
+            View Full LinkedIn Profile
+          </Button>
+        </div>
+        
         <ScoreCard result={result} />
         <ExperienceBreakdown experiences={result.experiences} />
         <CategoryBreakdown categories={result.categories} />

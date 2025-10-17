@@ -57,6 +57,7 @@ export const LinkedInAnalyzer = () => {
     // Check which profile to show
     const isAdamProfile = url.includes('adamsmohib');
     const isHoshangProfile = url.includes('hoshangv');
+    const isAshleyProfile = url.includes('ashweaver');
 
     let demoResult: AnalysisResult;
 
@@ -256,10 +257,112 @@ export const LinkedInAnalyzer = () => {
           }
         ]
       };
+    } else if (isAshleyProfile) {
+      // Static demo data for Ashley Weaver (good example)
+      demoResult = {
+        overallScore: 89,
+        verdict: "legitimate",
+        summary: "Exceptional profile demonstrating genuine technical expertise and career progression in developer advocacy and solutions engineering. Active thought leadership in AI/ML space with verifiable work history at established tech companies. Strong authenticity signals across all categories.",
+        categories: {
+          companyVerification: {
+            score: 92,
+            explanation: "All companies (WRITER, Stytch, Skyflow) are verifiable, well-established tech organizations with legitimate online presence. Company transitions show logical career progression in the auth/security and AI space."
+          },
+          artifactsCredentials: {
+            score: 90,
+            explanation: "BS in Computer Science from University of Colorado Boulder (2019-2023) with verified coursework in algorithms, databases, and web development. LinkedIn certifications in JavaScript and React.js add credibility. Recent technical content demonstrates deep expertise."
+          },
+          experienceAnalysis: {
+            score: 88,
+            explanation: "Clear career progression from Solutions Engineer roles to Developer Advocate. Concrete projects documented (Chrome extension, demo infrastructure, RAG-MCP implementation). Active technical writing and open-source contributions validate expertise."
+          },
+          networkPatterns: {
+            score: 86,
+            explanation: "907 followers with authentic engagement patterns. Network includes verified colleagues from WRITER, Stytch, and Skyflow. Technical posts receive meaningful engagement from industry professionals, indicating genuine influence."
+          }
+        },
+        experiences: [
+          {
+            id: 1,
+            title: "Developer Advocate",
+            company: "WRITER",
+            duration: "Jun 2025 - Present (5 mos)",
+            score: 94,
+            analysis: "Current role at established AI company with active thought leadership. Recent posts demonstrate deep technical expertise in RAG-MCP, context engineering, and LLM tooling. Open-source contributions and technical writing validate role.",
+            redFlags: [],
+            strengths: [
+              "Active technical content creation on AI/ML topics",
+              "Verified company affiliation",
+              "Clear expertise in RAG and context engineering",
+              "Open-source contributions to MCP implementations"
+            ]
+          },
+          {
+            id: 2,
+            title: "Solutions Engineer",
+            company: "Stytch",
+            duration: "Mar 2024 - Jun 2025 (1 yr 4 mos)",
+            score: 91,
+            analysis: "Well-documented tenure at authentication platform. Role aligns perfectly with technical background in security and APIs. Standard duration for solutions engineering before advancing to developer advocacy.",
+            redFlags: [],
+            strengths: [
+              "Clear transition timeline",
+              "Relevant industry experience in auth/security",
+              "Technical depth matches role requirements",
+              "Logical step to Developer Advocate role"
+            ]
+          },
+          {
+            id: 3,
+            title: "Solutions Engineer",
+            company: "Skyflow",
+            duration: "Aug 2023 - Jan 2024 (6 mos)",
+            score: 88,
+            analysis: "Demonstrated concrete technical achievements including Chrome extension development using HTML, JavaScript, and APIs. Created centralized demo repository that improved team efficiency. Documented use of Python, AWS Lambda, and API Gateways.",
+            redFlags: [
+              "Shorter tenure of 6 months"
+            ],
+            strengths: [
+              "Concrete project examples with technical details",
+              "Built Chrome extension for sensitive data detection",
+              "Cross-functional impact on sales and engineering teams",
+              "Specific technologies documented (Python, JavaScript, AWS)"
+            ]
+          },
+          {
+            id: 4,
+            title: "Frontend Developer",
+            company: "T9Hacks Hackathon",
+            duration: "Oct 2022 - Aug 2023 (11 mos)",
+            score: 85,
+            analysis: "Seasonal role leading website redesign for university hackathon. Demonstrates community involvement and practical application of web development skills during college.",
+            redFlags: [],
+            strengths: [
+              "Leadership in student organization",
+              "Practical web development experience",
+              "Community engagement and event organization"
+            ]
+          },
+          {
+            id: 5,
+            title: "Library Student Worker",
+            company: "University of Colorado Boulder",
+            duration: "May 2022 - May 2023 (1 yr 1 mo)",
+            score: 80,
+            analysis: "Part-time student work during college. Shows consistent employment while studying. Typical student job that demonstrates work ethic.",
+            redFlags: [],
+            strengths: [
+              "Demonstrates work ethic during studies",
+              "Consistent year-long employment",
+              "Balance of work and academic commitments"
+            ]
+          }
+        ]
+      };
     } else {
       // Default error for other URLs
       setIsAnalyzing(false);
-      setError("Please enter Adam's LinkedIn URL (linkedin.com/in/adamsmohib) or the demo profile (linkedin.com/in/hoshangv)");
+      setError("Please use one of the demo profiles: adamsmohib (good), ashweaver (good), or hoshangv (questionable)");
       return;
     }
 

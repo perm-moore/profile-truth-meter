@@ -38,27 +38,44 @@ serve(async (req) => {
       try {
         console.log('Attempting to scrape with Firecrawl...');
         const scrapeResult = await firecrawl.scrapeUrl(fullUrl, {
-          formats: ['markdown'],
-          timeout: 30000,
+          formats: ['markdown', 'html'],
+          onlyMainContent: false,
+          waitFor: 3000,
+          timeout: 45000,
         });
 
-        if (scrapeResult.success && scrapeResult.markdown) {
-          finalContent = scrapeResult.markdown;
-          console.log('Successfully scraped profile with Firecrawl');
+        console.log('Scrape result:', JSON.stringify(scrapeResult, null, 2));
+
+        if (scrapeResult.success && (scrapeResult.markdown || scrapeResult.html)) {
+          finalContent = scrapeResult.markdown || scrapeResult.html;
+          console.log('Successfully scraped profile with Firecrawl, content length:', finalContent.length);
+        } else {
+          console.log('Scrape succeeded but no content returned');
         }
-      } catch (scrapeError) {
-        // If Firecrawl fails due to LinkedIn blocking (403), log but continue with pasted content requirement
-        if (scrapeError instanceof Error && scrapeError.message.includes('403')) {
-          console.log('LinkedIn blocked Firecrawl scraping (403)');
+      } catch (scrapeError: any) {
+        console.error('=== FIRECRAWL ERROR ===');
+        console.error('Firecrawl error:', scrapeError);
+        console.error('Error message:', scrapeError?.message);
+        console.error('Status code:', scrapeError?.statusCode);
+        console.error('=== END FIRECRAWL ERROR ===');
+        
+        // If Firecrawl fails due to LinkedIn blocking (403), return helpful error
+        if (scrapeError?.statusCode === 403 || (scrapeError instanceof Error && scrapeError.message.includes('403'))) {
           return new Response(
             JSON.stringify({ 
-              error: 'LinkedIn blocked the scraper. Please visit the profile, copy all text (Ctrl+A/Cmd+A), and paste it in the text area.'
+              error: 'LinkedIn is blocking automated access. Please copy the profile text (visit profile → Ctrl+A/Cmd+A → Ctrl+C/Cmd+C) and paste it in the text area above the Analyze button.'
             }),
             { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        console.error('Firecrawl error:', scrapeError);
-        throw scrapeError;
+        
+        // For other errors, return generic message with hint about manual paste
+        return new Response(
+          JSON.stringify({ 
+            error: `Scraping failed: ${scrapeError?.message || 'Unknown error'}. Please paste the profile content manually.`
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
     }
 

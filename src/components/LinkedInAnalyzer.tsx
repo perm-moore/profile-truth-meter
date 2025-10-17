@@ -54,24 +54,29 @@ export const LinkedInAnalyzer = () => {
       return;
     }
 
-    if (!pastedContent.trim()) {
-      setError("Please paste the LinkedIn profile content below");
-      return;
-    }
-
     setIsAnalyzing(true);
     
     try {
-      toast({
-        title: "Analyzing profile...",
-        description: "AI is evaluating credibility",
-      });
+      // Try scraping first, use pasted content as fallback
+      const hasPastedContent = pastedContent.trim().length > 0;
+      
+      if (!hasPastedContent) {
+        toast({
+          title: "Scraping profile...",
+          description: "Attempting to fetch profile data automatically",
+        });
+      } else {
+        toast({
+          title: "Analyzing profile...",
+          description: "Using your pasted content",
+        });
+      }
 
       // Call the edge function to analyze with pasted content
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-linkedin', {
         body: { 
           profileUrl: url,
-          profileContent: pastedContent
+          profileContent: hasPastedContent ? pastedContent : undefined
         }
       });
 
@@ -151,10 +156,10 @@ export const LinkedInAnalyzer = () => {
               
               <div className="space-y-2">
                 <p className="text-sm text-primary-foreground/80 font-medium">
-                  LinkedIn blocks automated scrapers. Please visit the profile, select all text (Ctrl+A or Cmd+A), copy it, and paste below:
+                  Optional: If automatic scraping fails, paste the profile content here:
                 </p>
                 <textarea
-                  placeholder="Paste the full LinkedIn profile content here..."
+                  placeholder="Paste LinkedIn profile content here (optional - will try automatic scraping first)..."
                   value={pastedContent}
                   onChange={(e) => setPastedContent(e.target.value)}
                   className="w-full min-h-[200px] px-4 py-3 rounded-md bg-card/90 backdrop-blur-sm border border-primary-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"

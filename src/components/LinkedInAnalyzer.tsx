@@ -3,10 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield, AlertCircle, CheckCircle2, TrendingUp } from "lucide-react";
 import { ScoreCard } from "./ScoreCard";
+import { ExperienceBreakdown } from "./ExperienceBreakdown";
 import { CategoryBreakdown } from "./CategoryBreakdown";
+
+export interface Experience {
+  id: number;
+  title: string;
+  company: string;
+  duration: string;
+  score: number;
+  analysis: string;
+  redFlags: string[];
+  strengths: string[];
+}
 
 export interface AnalysisResult {
   overallScore: number;
+  experiences: Experience[];
   categories: {
     experienceDepth: { score: number; explanation: string };
     tenureConsistency: { score: number; explanation: string };
@@ -23,6 +36,48 @@ const analyzeLinkedInProfile = (url: string): AnalysisResult => {
   const hash = url.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const baseScore = 50 + (hash % 40);
   
+  // Generate mock experiences
+  const experienceTitles = [
+    { title: "Senior Software Engineer", company: "Tech Corp", duration: "2020 - Present" },
+    { title: "Product Manager", company: "Innovation Labs", duration: "2018 - 2020" },
+    { title: "UX Designer", company: "Design Studio", duration: "2016 - 2018" },
+    { title: "Marketing Specialist", company: "Growth Inc", duration: "2015 - 2016" },
+    { title: "Business Analyst", company: "Consulting Group", duration: "2013 - 2015" },
+  ];
+
+  const experiences: Experience[] = experienceTitles.map((exp, index) => {
+    const expScore = Math.min(100, Math.max(30, baseScore + ((hash * (index + 1)) % 40) - 20));
+    
+    const getRedFlags = (score: number): string[] => {
+      if (score >= 75) return [];
+      if (score >= 50) return ["Limited specific achievements mentioned", "Generic job description"];
+      return ["Vague responsibilities", "No measurable outcomes", "Inflated title for tenure"];
+    };
+
+    const getStrengths = (score: number): string[] => {
+      if (score >= 75) return ["Detailed responsibilities", "Measurable achievements", "Industry-relevant skills"];
+      if (score >= 50) return ["Clear job description", "Relevant experience"];
+      return ["Basic information present"];
+    };
+
+    const getAnalysis = (score: number): string => {
+      if (score >= 75) return "Strong indicators of genuine expertise. Role description includes specific achievements, technical details, and clear impact metrics that align with the position level.";
+      if (score >= 50) return "Moderate credibility. Some details provided but lacking depth in specific accomplishments or technical artifacts that would verify hands-on experience.";
+      return "Questionable legitimacy. Description is vague or overly generic with minimal evidence of actual work performed. Title may be inflated relative to tenure and responsibilities.";
+    };
+
+    return {
+      id: index + 1,
+      title: exp.title,
+      company: exp.company,
+      duration: exp.duration,
+      score: expScore,
+      analysis: getAnalysis(expScore),
+      redFlags: getRedFlags(expScore),
+      strengths: getStrengths(expScore),
+    };
+  });
+
   const categories = {
     experienceDepth: {
       score: Math.min(100, baseScore + (hash % 20)),
@@ -63,7 +118,7 @@ const analyzeLinkedInProfile = (url: string): AnalysisResult => {
     summary = "High likelihood of inflated or fabricated credentials. Profile exhibits multiple red flags suggesting limited real-world expertise despite bold claims. Verify thoroughly before engaging.";
   }
 
-  return { overallScore, categories, verdict, summary };
+  return { overallScore, experiences, categories, verdict, summary };
 };
 
 export const LinkedInAnalyzer = () => {
@@ -178,6 +233,7 @@ export const LinkedInAnalyzer = () => {
       {result && (
         <div className="max-w-6xl mx-auto px-4 py-12 animate-slide-up">
           <ScoreCard result={result} />
+          <ExperienceBreakdown experiences={result.experiences} />
           <CategoryBreakdown categories={result.categories} />
         </div>
       )}

@@ -36,22 +36,26 @@ serve(async (req) => {
       const firecrawl = new FirecrawlApp({ apiKey: FIRECRAWL_API_KEY });
       
       try {
-        console.log('Attempting to scrape with Firecrawl with enhanced settings...');
+        console.log('Attempting to scrape with Firecrawl - enhanced mobile user agent...');
         const scrapeResult = await firecrawl.scrapeUrl(fullUrl, {
           formats: ['markdown', 'html'],
           onlyMainContent: false,
-          waitFor: 5000,
-          timeout: 60000,
+          waitFor: 8000,
+          timeout: 90000,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
             'Accept-Encoding': 'gzip, deflate, br',
-            'DNT': '1',
+            'Referer': 'https://www.google.com/',
             'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none'
           },
           actions: [
+            { type: 'wait', milliseconds: 4000 },
+            { type: 'scroll', direction: 'down' },
             { type: 'wait', milliseconds: 3000 },
             { type: 'scroll', direction: 'down' },
             { type: 'wait', milliseconds: 2000 }

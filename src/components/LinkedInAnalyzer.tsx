@@ -54,8 +54,15 @@ export const LinkedInAnalyzer = () => {
     // Simulate AI analysis with delay
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Static demo data for Adam Mohib
-    const demoResult: AnalysisResult = {
+    // Check which profile to show
+    const isAdamProfile = url.includes('adamsmohib');
+    const isHoshangProfile = url.includes('hoshangv');
+
+    let demoResult: AnalysisResult;
+
+    if (isAdamProfile) {
+      // Static demo data for Adam Mohib (good example)
+      demoResult = {
       overallScore: 87,
       verdict: "legitimate",
       summary: "Strong academic profile with consistent progression in data science. Demonstrates genuine commitment through multiple concurrent roles and research involvement. Profile shows authentic growth trajectory with verifiable academic credentials and practical experience.",
@@ -150,6 +157,111 @@ export const LinkedInAnalyzer = () => {
         }
       ]
     };
+    } else if (isHoshangProfile) {
+      // Static demo data for Hoshang (bad example)
+      demoResult = {
+        overallScore: 42,
+        verdict: "questionable",
+        summary: "Profile shows multiple red flags including numerous overlapping executive positions, vague job descriptions, and inconsistent timeline patterns. Claims of massive team sizes and global presence cannot be verified. Heavy use of buzzwords without concrete achievements.",
+        categories: {
+          companyVerification: {
+            score: 35,
+            explanation: "Multiple companies with unclear verification status. MindHind Consulting claims '500+ Global Team' but lacks verifiable proof. Revenue Rushy claims '100+ experts' with limited online presence. Multiple companies founded simultaneously raises concerns."
+          },
+          artifactsCredentials: {
+            score: 45,
+            explanation: "Harvard Business School Online certification listed as MBA is misleading - these are online certificate courses, not degree programs. Education timeline conflicts with claimed work experience. Multiple degrees from distance education programs."
+          },
+          experienceAnalysis: {
+            score: 38,
+            explanation: "Impossible overlap of full-time executive positions - claims to be EVP, CTO, CGO, and Co-Founder at multiple companies simultaneously. Job descriptions are generic with buzzwords but lack specific achievements. Short tenure at many positions (8 months, 1 year)."
+          },
+          networkPatterns: {
+            score: 50,
+            explanation: "11,487 followers but limited engagement on posts. Following patterns show generic tech influencers. Network connections don't align with claimed senior executive positions at major corporations like JP Morgan Chase and UN."
+          }
+        },
+        experiences: [
+          {
+            id: 1,
+            title: "Chief Growth Officer",
+            company: "Revenue Rushy Inc.",
+            duration: "Dec 2023 - Present (1 yr 11 mos)",
+            score: 35,
+            analysis: "Claims 100+ team members for a lead generation agency with minimal online presence. Company website and verifiable client testimonials are lacking. Timeline overlaps with multiple other C-level positions.",
+            redFlags: [
+              "Unverifiable team size claims",
+              "Overlaps with 3 other executive positions",
+              "Limited digital footprint for claimed scale"
+            ],
+            strengths: []
+          },
+          {
+            id: 2,
+            title: "Executive Vice President",
+            company: "MindHind Consulting Group",
+            duration: "Jul 2023 - Present (2 yrs 4 mos)",
+            score: 40,
+            analysis: "Claims '500+ Global Team Strength' and 'Global Presence in America, Europe, Australia, Middle East & Asia' but company lacks verifiable evidence of this scale. Generic descriptions without specific achievements or measurable results.",
+            redFlags: [
+              "Unverifiable global team claims",
+              "Promoted from SVP to EVP in just 1 year",
+              "Vague responsibilities and achievements"
+            ],
+            strengths: [
+              "Long tenure at one company"
+            ]
+          },
+          {
+            id: 3,
+            title: "Chief Technology Officer",
+            company: "Ayuryog Healing Products",
+            duration: "Jul 2022 - Present (3 yrs 4 mos)",
+            score: 38,
+            analysis: "CTO role at wellness products company while holding multiple other executive tech positions. No technical achievements or product launches mentioned. Role description is minimal.",
+            redFlags: [
+              "Unclear how this relates to claimed tech expertise",
+              "No specific technical accomplishments listed",
+              "Overlaps with multiple other positions"
+            ],
+            strengths: []
+          },
+          {
+            id: 4,
+            title: "Co-Founder",
+            company: "LumioAI",
+            duration: "Apr 2024 - Nov 2024 (8 mos)",
+            score: 45,
+            analysis: "Very short 8-month tenure ending in 'Ownership Liquidation' - typically indicates failure. Founded while holding 3 other executive positions. Generic AI company description with no unique value proposition.",
+            redFlags: [
+              "Ownership liquidation after 8 months suggests failure",
+              "Founded during multiple other C-level roles",
+              "No concrete achievements or products mentioned"
+            ],
+            strengths: []
+          },
+          {
+            id: 5,
+            title: "IT Advisor/Consultant",
+            company: "Office of Vice President of India",
+            duration: "Jul 2022 - Dec 2023 (1 yr 6 mos)",
+            score: 50,
+            analysis: "High-profile government position claim is difficult to verify. No specific projects or achievements mentioned. 'Member of Technical Growth Advisory Board' is vague and unverifiable through official government channels.",
+            redFlags: [
+              "Unverifiable government position",
+              "No specific projects or outcomes",
+              "Overlaps with 3 other positions"
+            ],
+            strengths: []
+          }
+        ]
+      };
+    } else {
+      // Default error for other URLs
+      setIsAnalyzing(false);
+      setError("Please enter Adam's LinkedIn URL (linkedin.com/in/adamsmohib) or the demo profile (linkedin.com/in/hoshangv)");
+      return;
+    }
 
     setIsAnalyzing(false);
     

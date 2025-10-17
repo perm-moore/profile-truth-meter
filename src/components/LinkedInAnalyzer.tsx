@@ -34,6 +34,7 @@ export interface AnalysisResult {
 
 export const LinkedInAnalyzer = () => {
   const [url, setUrl] = useState("");
+  const [pastedContent, setPastedContent] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
@@ -53,24 +54,14 @@ export const LinkedInAnalyzer = () => {
       return;
     }
 
+    if (!pastedContent.trim()) {
+      setError("Please paste the LinkedIn profile content");
+      return;
+    }
+
     setIsAnalyzing(true);
     
     try {
-      toast({
-        title: "Fetching profile...",
-        description: "Retrieving LinkedIn profile content",
-      });
-
-      // Fetch the LinkedIn page content
-      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch LinkedIn profile');
-      }
-
-      const data = await response.json();
-      const profileContent = data.contents;
-
       toast({
         title: "Analyzing profile...",
         description: "AI is evaluating credibility",
@@ -79,7 +70,7 @@ export const LinkedInAnalyzer = () => {
       // Call the edge function to analyze
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-linkedin', {
         body: { 
-          profileContent,
+          profileContent: pastedContent,
           profileUrl: url 
         }
       });
@@ -134,15 +125,27 @@ export const LinkedInAnalyzer = () => {
           </p>
 
           <div className="max-w-2xl mx-auto">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3">
               <Input
                 type="url"
                 placeholder="Enter LinkedIn profile URL (e.g., linkedin.com/in/username)"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleAnalyze()}
-                className="flex-1 h-12 bg-card/90 backdrop-blur-sm border-primary-foreground/20 text-foreground placeholder:text-muted-foreground"
+                className="h-12 bg-card/90 backdrop-blur-sm border-primary-foreground/20 text-foreground placeholder:text-muted-foreground"
               />
+              
+              <div className="space-y-2">
+                <p className="text-sm text-primary-foreground/80 font-medium">
+                  For best results: Visit the LinkedIn profile, select all text (Ctrl+A or Cmd+A), copy it, and paste it here
+                </p>
+                <textarea
+                  placeholder="Paste the full text content from the LinkedIn profile here..."
+                  value={pastedContent}
+                  onChange={(e) => setPastedContent(e.target.value)}
+                  className="w-full min-h-[200px] px-4 py-3 rounded-md bg-card/90 backdrop-blur-sm border border-primary-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                />
+              </div>
+
               <Button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}

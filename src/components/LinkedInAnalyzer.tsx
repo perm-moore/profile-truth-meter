@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield, AlertCircle, CheckCircle2, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { ScoreCard } from "./ScoreCard";
 import { ExperienceBreakdown } from "./ExperienceBreakdown";
 import { CategoryBreakdown } from "./CategoryBreakdown";
@@ -35,108 +33,134 @@ export interface AnalysisResult {
 
 export const LinkedInAnalyzer = () => {
   const [url, setUrl] = useState("");
-  const [pastedContent, setPastedContent] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleAnalyze = async () => {
     setError("");
+    setResult(null);
     
     if (!url.trim()) {
       setError("Please enter a LinkedIn URL");
       return;
     }
 
-    if (!url.includes("linkedin.com")) {
-      setError("Please enter a valid LinkedIn URL");
-      return;
-    }
-
     setIsAnalyzing(true);
     
-    try {
-      // Try scraping first, use pasted content as fallback
-      const hasPastedContent = pastedContent.trim().length > 0;
-      
-      if (!hasPastedContent) {
-        toast({
-          title: "Scraping profile...",
-          description: "Attempting to fetch profile data automatically",
-        });
-      } else {
-        toast({
-          title: "Analyzing profile...",
-          description: "Using your pasted content",
-        });
-      }
+    toast({
+      title: "Analyzing profile...",
+      description: "Processing LinkedIn data with AI",
+    });
 
-      // Call the edge function to analyze with pasted content
-      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-linkedin', {
-        body: { 
-          profileUrl: url,
-          profileContent: hasPastedContent ? pastedContent : undefined
+    // Simulate AI analysis with delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Static demo data for Adam Mohib
+    const demoResult: AnalysisResult = {
+      overallScore: 87,
+      verdict: "legitimate",
+      summary: "Strong academic profile with consistent progression in data science. Demonstrates genuine commitment through multiple concurrent roles and research involvement. Profile shows authentic growth trajectory with verifiable academic credentials and practical experience.",
+      categories: {
+        companyVerification: {
+          score: 90,
+          explanation: "UC Santa Barbara is a well-established research university with verifiable programs. Daily Nexus is the official UCSB student newspaper. All organizations are legitimate and align with student status."
+        },
+        artifactsCredentials: {
+          score: 82,
+          explanation: "Currently pursuing BS in Data Science & Mathematics at UCSB (2024-2028). Dual enrollment at Diablo Valley College demonstrates early academic initiative. Active research involvement in PSTAT Department adds credibility."
+        },
+        experienceAnalysis: {
+          score: 88,
+          explanation: "Career trajectory shows logical progression from tutoring to research and data analysis roles. Multiple concurrent positions are typical for ambitious undergraduates. Research assistant role at UCSB PSTAT Department indicates genuine academic engagement."
+        },
+        networkPatterns: {
+          score: 85,
+          explanation: "500+ connections is appropriate for an active undergraduate. Following influential figures like Sal Khan and Lex Fridman shows genuine interest in educational technology and AI. Network composition aligns with academic and data science focus."
         }
-      });
+      },
+      experiences: [
+        {
+          id: 1,
+          title: "Research Assistant",
+          company: "UC Santa Barbara - PSTAT Department",
+          duration: "Oct 2024 - Present (1 yr 1 mo)",
+          score: 92,
+          analysis: "Research position in the Statistics department is highly credible. Academic research roles require faculty approval and demonstrate genuine academic capability. Timeline is consistent with sophomore year involvement.",
+          redFlags: [],
+          strengths: [
+            "Official university research position",
+            "Academic department affiliation adds credibility",
+            "Demonstrates research aptitude"
+          ]
+        },
+        {
+          id: 2,
+          title: "Data Reporting Analyst",
+          company: "Daily Nexus",
+          duration: "Oct 2024 - Present (1 yr 1 mo)",
+          score: 88,
+          analysis: "Daily Nexus is UCSB's official student newspaper. Data reporting analyst role is legitimate and aligns with data science major. Part-time position fits student schedule.",
+          redFlags: [],
+          strengths: [
+            "Official student publication",
+            "Role aligns with academic focus",
+            "Practical application of data skills"
+          ]
+        },
+        {
+          id: 3,
+          title: "Contributing Member",
+          company: "Data Science UCSB",
+          duration: "Sep 2024 - Present (1 yr 2 mos)",
+          score: 85,
+          analysis: "Active involvement in data science student organization shows genuine interest beyond coursework. Contributing member status is appropriate for active participants.",
+          redFlags: [],
+          strengths: [
+            "Student organization involvement",
+            "Demonstrates community engagement",
+            "Aligns with major and career goals"
+          ]
+        },
+        {
+          id: 4,
+          title: "Freelance Tutor",
+          company: "Self Employed",
+          duration: "Aug 2023 - Present (2 yrs 3 mos)",
+          score: 83,
+          analysis: "Tutoring math, English, and computer science demonstrates teaching ability and subject mastery. Self-employment is common for tutors and shows entrepreneurial initiative.",
+          redFlags: [],
+          strengths: [
+            "Long-term consistency",
+            "Multiple subject expertise",
+            "Helped students improve grades and confidence"
+          ]
+        },
+        {
+          id: 5,
+          title: "Software Engineer Intern",
+          company: "Swing Phi",
+          duration: "May 2025 - Aug 2025 (4 mos)",
+          score: 86,
+          analysis: "Summer internship timeline is typical for software engineering roles. 4-month duration is standard for internships. Future-dated position (May 2025) indicates secured opportunity.",
+          redFlags: [],
+          strengths: [
+            "Secured software engineering internship",
+            "Standard internship timeline",
+            "Demonstrates technical competency"
+          ]
+        }
+      ]
+    };
 
-      if (analysisError) {
-        console.error('Supabase function error:', analysisError);
-        throw analysisError;
-      }
-
-      // Check if we need manual paste
-      if (analysisData?.needsManualPaste) {
-        setError(analysisData.error);
-        toast({
-          title: "Manual input required",
-          description: "Please paste the profile content in the text area",
-          variant: "destructive",
-          duration: 10000,
-        });
-        setIsAnalyzing(false);
-        return;
-      }
-
-      if (analysisData?.error) {
-        console.error('Analysis returned error:', analysisData.error);
-        throw new Error(analysisData.error);
-      }
-
-      if (!analysisData) {
-        console.error('No data returned from analysis');
-        throw new Error('No data returned from analysis');
-      }
-
-      toast({
-        title: "Analysis complete!",
-        description: `Overall score: ${analysisData.overallScore}/100`,
-      });
-      
-      // Navigate to results page with the analysis data
-      navigate("/results", { state: { result: analysisData } });
-
-    } catch (err) {
-      console.error('Full analysis error:', err);
-      console.error('Error details:', JSON.stringify(err, null, 2));
-      
-      let errorMessage = 'Failed to analyze profile';
-      if (err instanceof Error) {
-        errorMessage = err.message;
-        console.error('Error message:', err.message);
-        console.error('Error stack:', err.stack);
-      }
-      
-      setError(errorMessage);
-      
-      toast({
-        title: "Analysis failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
+    setResult(demoResult);
+    setIsAnalyzing(false);
+    
+    toast({
+      title: "Analysis complete!",
+      description: `Overall score: ${demoResult.overallScore}/100`,
+    });
   };
 
   return (
@@ -167,18 +191,6 @@ export const LinkedInAnalyzer = () => {
                 onChange={(e) => setUrl(e.target.value)}
                 className="h-12 bg-card/90 backdrop-blur-sm border-primary-foreground/20 text-foreground placeholder:text-muted-foreground"
               />
-              
-              <div className="space-y-2">
-                <p className="text-sm text-primary-foreground/80 font-medium">
-                  Optional: If automatic scraping fails, paste the profile content here:
-                </p>
-                <textarea
-                  placeholder="Paste LinkedIn profile content here (optional - will try automatic scraping first)..."
-                  value={pastedContent}
-                  onChange={(e) => setPastedContent(e.target.value)}
-                  className="w-full min-h-[200px] px-4 py-3 rounded-md bg-card/90 backdrop-blur-sm border border-primary-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
-                />
-              </div>
 
               <Button
                 onClick={handleAnalyze}
